@@ -41,12 +41,9 @@ def test_brief(s):
 @pytest.mark.parametrize("s", STRING_TYPES)
 def test_info(s):
     e = Error("Brief", **s['data'])
-    debug(e.info)
 
     e.info += s['template']
     e.info += "Second line"
-
-    debug(e.info)
 
     assert e.brief_str == "Brief"
     assert e.info_strs == [s['expected'], "Second line"]
