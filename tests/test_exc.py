@@ -97,12 +97,16 @@ def test_wrap(monkeypatch):
             lambda: os.terminal_size((10, 1)),
     )
 
-    ruler = "1 3 5 7 9 11 14 17"
+    ruler_breakable = "1 3 5 7 9 11 14 17"
+    ruler_unbreakable = "1-3-5-7-9-11-14-17"
 
-    e = Error(ruler)
-    e.info += ruler
-    e.blame += ruler
-    e.hints += ruler
+    e = Error(ruler_breakable)
+    e.info += ruler_breakable
+    e.info += ruler_unbreakable
+    e.blame += ruler_breakable
+    e.blame += ruler_unbreakable
+    e.hints += ruler_breakable
+    e.hints += ruler_unbreakable
 
     # Caret shows where the wrapping should occur:
     #    v
@@ -112,12 +116,15 @@ def test_wrap(monkeypatch):
 • 1 3 5 7
   9 11 14
   17
+• 1-3-5-7-9-11-14-17
 ✖ 1 3 5 7
   9 11 14
   17
+✖ 1-3-5-7-9-11-14-17
 • 1 3 5 7
   9 11 14
   17
+• 1-3-5-7-9-11-14-17
 """
 
 @pytest.mark.parametrize("s", STRING_TYPES)

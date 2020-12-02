@@ -384,11 +384,17 @@ class Error(Exception):
         ]
         w = get_terminal_size().columns
 
+        # Be conservative about line-breaking to avoid breaking paths.
+        wrap_options = dict(
+                break_on_hyphens=False,
+                break_long_words=False,
+        )
+
         for bullet, strs in parts:
             b = len(bullet)
 
             for s in strs:
-                s = textwrap.fill(s, width=w-b)
+                s = textwrap.fill(s, width=w-b, **wrap_options)
                 s = textwrap.indent(s, b*' ')
                 s = bullet + s[b:]
                 message += s + '\n'
