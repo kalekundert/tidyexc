@@ -15,9 +15,12 @@ def property_iadd(getter):
     return property(getter, setter)
 
 def eval_template(template, data):
-    if callable(template):
-        return template(data)
-    else:
-        return template.format(**data)
+    try:
+        if callable(template):
+            return template(data)
+        else:
+            return template.format(**data)
+    except Exception as err:
+        return str(err)
 
 

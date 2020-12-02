@@ -36,6 +36,10 @@ docs = [
 'Continuous Integration' = 'https://github.com/kalekundert/tidyexc/actions'
 'Test Coverage' = 'https://coveralls.io/github/kalekundert/tidyexc'
 
+[tool.pytest.ini_options]
+addopts = "--doctest-modules --doctest-glob='*.rst'"
+doctest_optionflags = 'NORMALIZE_WHITESPACE'
+
 [tool.semantic_release]
 version_variable = 'tidyexc/__init__.py:__version__'
 build_command = 'python -m pip install flit && flit build'
