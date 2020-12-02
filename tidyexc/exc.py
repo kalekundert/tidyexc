@@ -138,7 +138,7 @@ class Error(Exception):
         _info_stack = [x for x in _info_stack if x[0] is not cls]
 
 
-    def __init__(self, brief="", /, **kwargs):
+    def __init__(self, brief="", **kwargs):
         """
         Create a new exception.
 
