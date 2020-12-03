@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (2020-12-03)
+### Feature
+* Respect explicit line breaks in error messages ([`14a698e`](https://github.com/kalekundert/tidyexc/commit/14a698e09009dde3c2aaa058f99f9e9f9d7ea2b9))
+
 ## v0.4.0 (2020-12-03)
 ### Feature
 * Allow __iadd__ to work with sequences or scalars ([`89dbe1e`](https://github.com/kalekundert/tidyexc/commit/89dbe1edf096a8bb5f942927151192e0d75fefa5))

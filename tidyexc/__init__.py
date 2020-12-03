@@ -6,5 +6,5 @@ An exception class inspired by the tidyverse style guide.
 
 from .exc import Error
 
-__version__ = '0.4.0'
+__version__ = '0.5.0'
 
