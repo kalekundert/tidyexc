@@ -394,7 +394,10 @@ class Error(Exception):
             b = len(bullet)
 
             for s in strs:
-                s = textwrap.fill(s, width=w-b, **wrap_options)
+                s = '\n'.join(
+                        textwrap.fill(x, width=w-b, **wrap_options)
+                        for x in s.splitlines()
+                )
                 s = textwrap.indent(s, b*' ')
                 s = bullet + s[b:]
                 message += s + '\n'
