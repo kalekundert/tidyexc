@@ -10,6 +10,9 @@ Install TidyExc using ``pip``:
 
   $ pip install tidyexc
 
+- Requires python≥3.6
+- Uses `semantic versioning`_.
+
 Defining exceptions
 ===================
 TidyExc exceptions inherit from ``tidyexc.Error`` and are typically empty:
@@ -24,9 +27,9 @@ While it's possible to use the `Error` class directly, it's good practice to
 define a custom exception type for your library.  This makes it possible to 
 distinguish between exceptions from different libraries.
 
-How many exceptions classes to define is a matter of taste.  I prefer to define 
-one for each kind of user that might be expected to fix the problem causing the 
-exception.  For example, this might include:
+How many exception classes to define for your library is a matter of taste.  I 
+prefer to define one for each kind of user that might be expected to fix the 
+problem causing the exception.  For example, this might include:
 
 - *UsageError*: For faulty input that the end-user would need to fix.
 - *ApiError*: For programming mistakes that a developer would need to fix.
@@ -48,7 +51,7 @@ For example, one common way to handle an exception is to raise another
 exception with a more context-specific message (e.g. "missing configuration" 
 instead of "file not found").  This is much easier if the parameters of the 
 original exception (e.g. the file name) can be accessed directly, rather than 
-needing to be `parsed from an error message`__.
+needing to be `parsed from its error message`__.
 
 __ https://stackoverflow.com/questions/27779375/get-better-parse-error-message-from-elementtree
 
@@ -105,4 +108,6 @@ raised as usual:
   ✖ something unexpected: 2
   • try this instead
 
+.. _`semantic versioning`: https://semver.org/
 .. _`tidyverse style guide`: https://style.tidyverse.org/error-messages.html
+
