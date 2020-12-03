@@ -90,6 +90,16 @@ Brief
 • Second line
 """
 
+def test_iadd():
+    e = Error()
+
+    e.info += "a"
+    e.info += lambda e: "b"
+    e.info += ["c", "d"]
+    e.info += ("e", "f")
+
+    assert e.info_strs == ["a", "b", "c", "d", "e", "f"]
+
 def test_wrap(monkeypatch):
     import tidyexc.exc, os
     monkeypatch.setattr(

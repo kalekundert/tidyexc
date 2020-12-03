@@ -2,8 +2,11 @@
 
 class list_iadd(list):
 
-    def __iadd__(self, message):
-        self.append(message)
+    def __iadd__(self, other):
+        if callable(other) or isinstance(other, str):
+            self.append(other)
+        else:
+            self.extend(other)
         return self
 
 def property_iadd(getter):
