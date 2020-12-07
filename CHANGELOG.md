@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.1 (2020-12-07)
+### Fix
+* Replace dotmap with a non-recursive alternative ([`293e71c`](https://github.com/kalekundert/tidyexc/commit/293e71c4b06877792ebe7879abf3897f2d913550))
+
 ## v0.5.0 (2020-12-03)
 ### Feature
 * Respect explicit line breaks in error messages ([`14a698e`](https://github.com/kalekundert/tidyexc/commit/14a698e09009dde3c2aaa058f99f9e9f9d7ea2b9))
