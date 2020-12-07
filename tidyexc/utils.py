@@ -9,6 +9,14 @@ class list_iadd(list):
             self.extend(other)
         return self
 
+class dict_attr(dict):
+
+    def __getattr__(self, key):
+        return self[key]
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
 def property_iadd(getter):
 
     def setter(self, x):

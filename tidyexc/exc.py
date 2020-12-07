@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
 import textwrap
-from dotmap import DotMap
 from shutil import get_terminal_size
 from contextlib import contextmanager
 from collections import ChainMap
-from .utils import list_iadd, property_iadd, eval_template
+from .utils import list_iadd, property_iadd, dict_attr, eval_template
 
 _info_stack = []
 
@@ -175,7 +174,7 @@ class Error(Exception):
         self._info = list_iadd(info_messages)
         self._blame = list_iadd()
         self._hints = list_iadd()
-        self._data = DotMap(ChainMap(kwargs, *reversed(info_kwargs)))
+        self._data = dict_attr(ChainMap(kwargs, *reversed(info_kwargs)))
 
     @property
     def brief(self):
@@ -349,8 +348,8 @@ class Error(Exception):
         """
         Parameters relevant to the error.
 
-        This attribute is a DotMap_ instance.  Briefly, this means that 
-        parameters can be accessed either as attributes or as dictionary 
+        This attribute is a dictionary that has been subclassed to allow 
+        parameters to be accessed either as attributes or as dictionary 
         elements:
 
         .. code-block:: pycon
@@ -360,8 +359,6 @@ class Error(Exception):
             1
             >>> e.data['a']
             1
-
-        .. _DotMap: https://github.com/drgrib/dotmap
         """
         return self._data
 

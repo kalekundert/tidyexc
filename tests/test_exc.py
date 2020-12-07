@@ -90,6 +90,11 @@ Brief
 • Second line
 """
 
+def test_data():
+    e = Error(a=1)
+    e.data.b = 2
+    assert e.data == {'a': 1, 'b': 2}
+
 def test_iadd():
     e = Error()
 
@@ -320,4 +325,10 @@ def test_add_info_nested():
             "Local a=3 b=2 c=1",
     ]
 
-            
+def test_format_dict():
+    # When I was using dotmap, I ran into a problem where dictionary data would 
+    # be converted into a dotmap and rendered confusingly.  This test just 
+    # makes sure that that behavior is eliminated.
+    e = Error("{d}", d={'a': 1})
+    assert str(e) == "{'a': 1}\n"
+
