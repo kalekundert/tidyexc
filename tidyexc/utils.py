@@ -21,7 +21,7 @@ def property_iadd(getter):
 
     def setter(self, x):
         if x is not getter(self):
-            raise AttributeError("can't set attribute")
+            raise AttributeError("can't set attribute, did you mean to use `+=`?")
 
     return property(getter, setter)
 
