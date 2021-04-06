@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.0 (2021-04-06)
+### Feature
+* Disable all line-wrapping ([`501524a`](https://github.com/kalekundert/tidyexc/commit/501524ad0062cf96ac78bd756e3c23eaf6954ccc))
+
+### Documentation
+* Improve error message ([`530341f`](https://github.com/kalekundert/tidyexc/commit/530341fe16be5b0892526c9721fe263f3fe6f903))
+
 ## v0.5.1 (2020-12-07)
 ### Fix
 * Replace dotmap with a non-recursive alternative ([`293e71c`](https://github.com/kalekundert/tidyexc/commit/293e71c4b06877792ebe7879abf3897f2d913550))
