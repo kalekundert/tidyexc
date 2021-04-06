@@ -105,53 +105,6 @@ def test_iadd():
 
     assert e.info_strs == ["a", "b", "c", "d", "e", "f"]
 
-def test_wrap(monkeypatch):
-    import tidyexc.exc, os
-    monkeypatch.setattr(
-            tidyexc.exc, 'get_terminal_size',
-            lambda: os.terminal_size((10, 1)),
-    )
-
-    ruler_breakable = "1 3 5 7 9 11 14 17"
-    ruler_unbreakable = "1-3-5-7-9-11-14-17"
-    ruler_explicit_break = "1 3\n1 3"
-
-    e = Error(ruler_breakable)
-    e.info += ruler_breakable
-    e.info += ruler_unbreakable
-    e.info += ruler_explicit_break
-    e.blame += ruler_breakable
-    e.blame += ruler_unbreakable
-    e.blame += ruler_explicit_break
-    e.hints += ruler_breakable
-    e.hints += ruler_unbreakable
-    e.hints += ruler_explicit_break
-
-    # Caret shows where the wrapping should occur:
-    #    v
-    assert str(e) == f"""\
-1 3 5 7 9
-11 14 17
-• 1 3 5 7
-  9 11 14
-  17
-• 1-3-5-7-9-11-14-17
-• 1 3
-  1 3
-✖ 1 3 5 7
-  9 11 14
-  17
-✖ 1-3-5-7-9-11-14-17
-✖ 1 3
-  1 3
-• 1 3 5 7
-  9 11 14
-  17
-• 1-3-5-7-9-11-14-17
-• 1 3
-  1 3
-"""
-
 @pytest.mark.parametrize("s", STRING_TYPES)
 def test_push_pop_info(s):
 

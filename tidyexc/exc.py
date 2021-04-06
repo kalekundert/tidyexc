@@ -176,6 +176,32 @@ class Error(Exception):
         self._hints = list_iadd()
         self._data = dict_attr(ChainMap(kwargs, *reversed(info_kwargs)))
 
+    def __str__(self):
+        """
+        Return the formatted error message.
+
+        All parameter substitutions are performed at this point, so any changes 
+        made to either the message templates or the data themselves will be 
+        reflected in the resulting error message.
+        """
+        message = ""
+        parts = [
+                ('',  [self.brief_str]),
+                ('• ', self.info_strs),
+                ('✖ ', self.blame_strs),
+                ('• ', self.hint_strs),
+        ]
+
+        for bullet, strs in parts:
+            b = len(bullet)
+
+            for s in strs:
+                s = textwrap.indent(s, b*' ')
+                s = bullet + s[b:]
+                message += s + '\n'
+
+        return message
+
     @property
     def brief(self):
         """
@@ -362,41 +388,3 @@ class Error(Exception):
         """
         return self._data
 
-    def __str__(self):
-        """
-        Return the formatted error message.
-
-        All parameter substitutions are performed at this point, so any changes 
-        made to either the message templates or the data themselves will be 
-        reflected in the resulting error message.
-
-        The error message is wrapped based on the width of the terminal.
-        """
-        message = ""
-        parts = [
-                ('',  [self.brief_str]),
-                ('• ', self.info_strs),
-                ('✖ ', self.blame_strs),
-                ('• ', self.hint_strs),
-        ]
-        w = get_terminal_size().columns
-
-        # Be conservative about line-breaking to avoid breaking paths.
-        wrap_options = dict(
-                break_on_hyphens=False,
-                break_long_words=False,
-        )
-
-        for bullet, strs in parts:
-            b = len(bullet)
-
-            for s in strs:
-                s = '\n'.join(
-                        textwrap.fill(x, width=w-b, **wrap_options)
-                        for x in s.splitlines()
-                )
-                s = textwrap.indent(s, b*' ')
-                s = bullet + s[b:]
-                message += s + '\n'
-
-        return message
