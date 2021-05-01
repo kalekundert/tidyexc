@@ -110,4 +110,3 @@ raised as usual:
 
 .. _`semantic versioning`: https://semver.org/
 .. _`tidyverse style guide`: https://style.tidyverse.org/error-messages.html
-

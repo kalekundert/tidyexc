@@ -17,12 +17,12 @@ classifiers = [
 ]
 
 [tool.flit.metadata.requires-extra]
-tests = [
+test = [
   'pytest',
   'pytest-cov',
   'coveralls',
 ]
-docs = [
+doc = [
   'sphinx',
   'sphinx_rtd_theme',
   'autoclasstoc',
@@ -38,6 +38,12 @@ docs = [
 [tool.pytest.ini_options]
 addopts = "--doctest-modules --doctest-glob='*.rst'"
 doctest_optionflags = 'NORMALIZE_WHITESPACE'
+
+[tool.pccc]
+header_length = 72
+types = ["chore", "docs", "feat", "fix", "refactor", "style", "test"]
+ignore_generated_commits = true
+generated_commits = ['^Merge']
 
 [tool.semantic_release]
 version_variable = 'tidyexc/__init__.py:__version__'
