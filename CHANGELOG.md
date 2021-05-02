@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.0 (2021-05-02)
+### Feature
+* Support recursive calls to `add_info()` ([`d653283`](https://github.com/kalekundert/tidyexc/commit/d653283253fdfb1c1045abd5d8b5f3976e557d7d))
+
 ## v0.6.0 (2021-04-06)
 ### Feature
 * Disable all line-wrapping ([`501524a`](https://github.com/kalekundert/tidyexc/commit/501524ad0062cf96ac78bd756e3c23eaf6954ccc))
