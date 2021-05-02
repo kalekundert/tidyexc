@@ -4,7 +4,9 @@ import textwrap
 from shutil import get_terminal_size
 from contextlib import contextmanager
 from collections import ChainMap
-from .utils import list_iadd, property_iadd, dict_attr, eval_template
+from traceback import format_exc
+from .views import data_view, nested_data_view, info_view
+from .utils import list_iadd, property_iadd, eval_template
 
 _info_stack = []
 
@@ -39,32 +41,21 @@ class Error(Exception):
         ✖ 0 available
     """
 
+    info_bullet = '• '
+    "The prefix to use for each `info` message in the formatted error."
+    blame_bullet = '✖ '
+    "The prefix to use for each `blame` message in the formatted error."
+    hint_bullet = '• '
+    "The prefix to use for each `hints` message in the formatted error."
+
     @classmethod
     @contextmanager
-    def add_info(cls, message, **kwargs):
+    def add_info(cls, *messages, **kwargs):
         """
         Add the given `info` to any exceptions derived from this class that are 
         instantiated inside a with-block.
 
-        It is common for different exceptions raised by a single task to share 
-        some context.  For example, many errors are possible when parsing a 
-        file, but for most of them the file name and line number will be 
-        relevant.  This function provides an easy way to include this context.
-
-        Any exceptions that inherit from this class and are instantiated inside 
-        a with-block using this context manager will have the given message 
-        template as one of their `info` bullet points, and the given *kwargs* 
-        merged with their `data`.  The data is merged such that later values 
-        will override earlier values.  
-        
-        It is possible to nest any number of these context managers.  The 
-        `info` bullet points will appear in the order the context managers were 
-        invoked.  It is considered good practice for the message template to 
-        only refer to parameters that are provided to the same context manager, 
-        but all message templates do have access to all parameters, regardless 
-        of when they were specified.
-
-        Example:
+        A simple example:
 
         .. code-block:: pycon
 
@@ -76,15 +67,72 @@ class Error(Exception):
               ...
             tidyexc.exc.Error:
             • a: 1
+
+        The purpose of this function is to make it easier to add contextual 
+        information to exceptions.  This is easiest to illustrate with an 
+        example.  The following function parses a list of (x, y) coordinates 
+        from a file.  Each coordinate appears on its own line and must consist 
+        of exactly two whitespace-separated numbers.  There are several 
+        different errors this function should detect, but all of the error 
+        messages should include the file path, and most should also include the 
+        offending line number:
+
+        .. literalinclude:: /parse_xy_coords.py
+            :language: python
+            :end-before: ##################################### >8 #####################################
+
+        Using `add_info()` simplifies the above code in two major ways:
+
+        - Each piece of contextual information is specified just once and used 
+          by multiple exceptions.  There's no way to accidentally raise an 
+          exception without this information.
+
+        - The helper functions that actually raise the exceptions don't need to 
+          have access to any of the contextual information.  Without 
+          `add_info()`, it would either be necessary to pass extra arguments 
+          around or to catch and re-raise the exceptions.
+
+        It is possible to nest any number of these context managers.  The 
+        `info` bullet points will appear in the order the context managers were 
+        invoked.  It is considered good practice for the message templates to 
+        only make use of the *kwargs* parameters provided to the same context 
+        manager, but templates can access all previously defined parameters.  
+        They cannot access any subsequently defined parameters.  If a parameter 
+        is defined multiple times, the most recent previous value will be used. 
+        For example:
+
+        .. code-block:: pycon
+
+            >>> # This template cannot use the `c` parameter, because it has
+            >>> # not been defined yet.  Note that the `b` parameter keeps its 
+            >>> # value, even though it is subsequently redefined.
+            >>> with Error.add_info('a={a} b={b}', a=1, b=2):
+            ...
+            ...     # The `a` parameter can be used in this template because 
+            ...     # it was defined previously.  The `b` parameter shadows the
+            ...     # previous value.
+            ...     raise Error('a={a} b={b} c={c}', b=3, c=4)
+            ...
+            Traceback (most recent call last):
+              ...
+            tidyexc.exc.Error: a=1 b=3 c=4
+            • a=1 b=2
+
+        Because templates cannot be affected by subsequent parameters, it is 
+        safe to use `add_info()` in recursive functions, where the same exact 
+        parameters might be specified multiple times with different values.  
+        The `data` attribute provides access to the current value of each 
+        parameter.  The `nested_data` attribute, in contrast, provides access 
+        to all values for each parameter.
         """
         try:
-            cls.push_info(message, **kwargs)
+            cls.push_info(*messages, **kwargs)
             yield
         finally:
             cls.pop_info()
 
     @classmethod
-    def push_info(cls, message, **kwargs):
+    def push_info(cls, *messages, **kwargs):
         """
         Add the given `info` to any exceptions derived from this class that are 
         subsequently instantiated.
@@ -111,7 +159,7 @@ class Error(Exception):
             • a: 1
         """
 
-        _info_stack.append((cls, message, kwargs))
+        _info_stack.append((cls, messages, kwargs))
 
     @classmethod
     def pop_info(cls):
@@ -123,9 +171,11 @@ class Error(Exception):
         """
         for i, (cls_i, _, _) in reversed(list(enumerate(_info_stack))):
             if cls_i is cls:
-                del _info_stack[i]
-                return
-        raise IndexError(f"no info to pop for {cls}")
+                break
+        else:
+            raise IndexError(f"no info to pop for {cls}")
+
+        del _info_stack[i]
 
     @classmethod
     def clear_info(cls):
@@ -162,19 +212,32 @@ class Error(Exception):
             tidyexc.exc.Error: a: 1
 
         """
+
+        # `info_stack` is in the order that the messages will appear in, i.e.  
+        # oldest first.  This is a little inconvenient for `data_view`, because 
+        # it means that `ChainMap` naturally reads in the wrong direction, but 
+        # `data_view` handles this internally using `reverse_view`.
+
         info_stack = [
-                (msg, kwargs)
-                for cls, msg, kwargs in _info_stack
+                (msgs, kwargs)
+                for cls, msgs, kwargs in _info_stack
                 if isinstance(self, cls)
         ]
-        info_messages, info_kwargs = \
+        info_message_groups, info_kwargs = \
                 zip(*info_stack) if info_stack else ([], [])
 
+        self._info = []
+        for i, msgs in enumerate(info_message_groups):
+            self._info += [(i, m) for m in msgs]
+
         self._brief = brief
-        self._info = list_iadd(info_messages)
         self._blame = list_iadd()
         self._hints = list_iadd()
-        self._data = dict_attr(ChainMap(kwargs, *reversed(info_kwargs)))
+        self._data = [*info_kwargs, kwargs]
+
+        self._info_view = info_view(self._info, len(info_kwargs))
+        self._data_view = data_view(self._data)
+        self._nested_data_view = nested_data_view(self._data)
 
     def __str__(self):
         """
@@ -184,23 +247,32 @@ class Error(Exception):
         made to either the message templates or the data themselves will be 
         reflected in the resulting error message.
         """
-        message = ""
-        parts = [
-                ('',  [self.brief_str]),
-                ('• ', self.info_strs),
-                ('✖ ', self.blame_strs),
-                ('• ', self.hint_strs),
-        ]
 
-        for bullet, strs in parts:
-            b = len(bullet)
+        # By default, exceptions that occur while printing an exception are 
+        # totally sequestered; you just get a message saying "<exception str() 
+        # failed>".  This isn't very helpful, so here we manually format the 
+        # stack trace and display it to the user.
+        try:
+            message = ""
+            parts = [
+                    ('',  [self.brief_str]),
+                    (self.info_bullet, self.info_strs),
+                    (self.blame_bullet, self.blame_strs),
+                    (self.hint_bullet, self.hint_strs),
+            ]
 
-            for s in strs:
-                s = textwrap.indent(s, b*' ')
-                s = bullet + s[b:]
-                message += s + '\n'
+            for bullet, strs in parts:
+                b = len(bullet)
 
-        return message
+                for s in strs:
+                    s = textwrap.indent(s, b*' ')
+                    s = bullet + s[b:]
+                    message += s + '\n'
+
+            return message
+
+        except:
+            return f"\n\nError occurred while formatting {self.__class__.__name__}:\n\n{format_exc()}\n\n"
 
     @property
     def brief(self):
@@ -269,11 +341,17 @@ class Error(Exception):
           succinct way to format parameters using arbitrary expressions (see 
           example below).
           
-        The `info`, `blame`, and `hints` attributes are all lists of message 
-        templates.  Special syntax is added such that use can use the ``+=`` 
-        operator to add message templates to any of these lists.  You can also 
-        use any of the usual list methods to modify the list in-place, although 
-        you cannot overwrite the attribute altogether.
+        The `info`, `blame`, and `hints` attributes are all list-like objects 
+        containing message templates.  Special syntax is added such that use 
+        can use the ``+=`` operator to add message templates to any of these 
+        lists.  You can also use any of the usual list methods to modify the 
+        list in-place, although you cannot overwrite these attributes 
+        altogether.
+
+        The `info` attribute alone has an additional method called ``layers()`` 
+        that returns each info template paired with the index that can be 
+        passed to ``nested_data.flatten()`` to get the parameters associated 
+        with that particular template.
         
         Example:
 
@@ -290,14 +368,17 @@ class Error(Exception):
             • b: 2,3
 
         """
-        return self._info
+        return self._info_view
 
     @property
     def info_strs(self):
         """
         The `info` messages, with all parameter substitution performed.
         """
-        return [eval_template(x, self.data) for x in self.info]
+        return [
+                eval_template(x, self.nested_data.flatten(i))
+                for i, x in self._info
+        ]
 
     @property_iadd
     def blame(self):
@@ -374,9 +455,8 @@ class Error(Exception):
         """
         Parameters relevant to the error.
 
-        This attribute is a dictionary that has been subclassed to allow 
-        parameters to be accessed either as attributes or as dictionary 
-        elements:
+        This attribute is a dictionary-like object that allows parameters to be 
+        accessed either as attributes or as dictionary elements:
 
         .. code-block:: pycon
 
@@ -385,6 +465,66 @@ class Error(Exception):
             1
             >>> e.data['a']
             1
+
+        If a parameter has been defined multiple times (e.g. with 
+        `add_info()`), the most recent value is the one that will be used:
+
+        .. code-block:: pycon
+
+            >>> with Error.add_info(a=1):
+            ...     e = Error(a=2)
+            ...     e.data.a
+            2
+
         """
-        return self._data
+        return self._data_view
+
+    @data.setter
+    def data(self, values):
+        self._data[-1] = values
+
+    @property
+    def nested_data(self):
+        """
+        A view providing access to *all* values defined for each parameter.
+
+        This is useful when trying to extract information from an exception 
+        where some parameters may have been defined multiple times, e.g. if 
+        `add_info()` was used in a recursive function.  
+
+        The simplest way to use this view is to access a parameter name either 
+        as an attribute or a dictionary element.  This will return a list of 
+        all the values associated with that parameter:
+
+        .. code-block:: pycon
+
+            >>> with Error.add_info(a=1):
+            ...     e = Error(a=2)
+            ...     e.nested_data.a
+            [1, 2]
+
+        The ``[]`` operator will also accept a tuple of parameter names, in 
+        which case it will return a list of those parameters in every context 
+        in which at least one of those parameters was defined.  This is useful 
+        if you're interested in parameters that are logically connected (e.g. 
+        line and column number) and you want to avoid the possibility of them 
+        getting out of sync:
+
+        .. code-block:: pycon
+
+            >>> with Error.add_info(a=1, b=2):
+            ...     with Error.add_info(a=3, b=4):
+            ...         e = Error(c=5)
+            ...         e.nested_data['a','b']
+            [(1, 2), (3, 4)]
+
+        Finally, the view also has a ``flatten()`` method that can be used to 
+        get all the values for each parameter defined at a particular point in 
+        time.  The method accepts a single argument which will be used as an 
+        index into the internal list of contexts.  The ``data.layers()`` method 
+        can be used to get the index corresponding to any info message 
+        template.
+        """
+        return self._nested_data_view
+
 

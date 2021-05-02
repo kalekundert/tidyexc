@@ -30,7 +30,7 @@ extensions = [
 intersphinx_mapping = {
         'python': ('https://docs.python.org/3', None),
 }
-autosummary_generate = True
+autosummary_generate = False
 autodoc_default_options = {
         'exclude-members': '__dict__,__weakref__,__module__',
 }

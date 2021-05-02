@@ -36,6 +36,7 @@ doc = [
 'Test Coverage' = 'https://coveralls.io/github/kalekundert/tidyexc'
 
 [tool.pytest.ini_options]
+python_files = 'test_*.py parse_xy_coords.py'
 addopts = "--doctest-modules --doctest-glob='*.rst'"
 doctest_optionflags = 'NORMALIZE_WHITESPACE'
 

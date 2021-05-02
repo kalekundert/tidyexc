@@ -2,8 +2,8 @@
 API reference
 *************
 
-.. autoclass:: tidyexc.Error
-   :members:
-   :special-members:
-
-   .. autoclasstoc::
+.. autosummary::
+   :toctree: api
+    
+   tidyexc.Error
+   tidyexc.only_raise

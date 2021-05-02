@@ -1,6 +1,35 @@
 #!/usr/bin/env python3
 
-class list_iadd(list):
+import functools
+from traceback import format_exc
+
+class only_raise:
+    """
+    Guarantee that the decorated function can only raise the given type of 
+    exception.
+
+    Any unhandled exception raised by the decorated function will be caught and 
+    re-raised using an exception of the given type. 
+    """
+
+    def __init__(self, err_cls):
+        self.err_cls = err_cls
+
+    def __call__(self, f):
+
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            try:
+                return f(*args, **kwargs)
+            except self.err_cls as err:
+                raise err from None
+            except Exception as err:
+                raise self.err_cls(str(err)) from err
+
+        return wrapper
+
+
+class iadd_mixin:
 
     def __iadd__(self, other):
         if callable(other) or isinstance(other, str):
@@ -9,15 +38,11 @@ class list_iadd(list):
             self.extend(other)
         return self
 
-class dict_attr(dict):
-
-    def __getattr__(self, key):
-        return self[key]
-
-    def __setattr__(self, key, value):
-        self[key] = value
+class list_iadd(iadd_mixin, list):
+    pass
 
 def property_iadd(getter):
+    # Provide a more helpful error message if the user forgets to use `+=`.
 
     def setter(self, x):
         if x is not getter(self):
@@ -26,12 +51,7 @@ def property_iadd(getter):
     return property(getter, setter)
 
 def eval_template(template, data):
-    try:
-        if callable(template):
-            return template(data)
-        else:
-            return template.format(**data)
-    except Exception as err:
-        return str(err)
-
-
+    if callable(template):
+        return template(data)
+    else:
+        return template.format(**data)
