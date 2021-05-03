@@ -342,7 +342,7 @@ class Error(Exception):
           example below).
           
         The `info`, `blame`, and `hints` attributes are all list-like objects 
-        containing message templates.  Special syntax is added such that use 
+        containing message templates.  Special syntax is added such that you 
         can use the ``+=`` operator to add message templates to any of these 
         lists.  You can also use any of the usual list methods to modify the 
         list in-place, although you cannot overwrite these attributes 
