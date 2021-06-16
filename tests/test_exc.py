@@ -142,7 +142,7 @@ def test_data_setattr():
     class A(Error):
         pass
 
-    with A.add_info("", a=1):
+    with A.add_info(a=1):
         a = A(b=2)
 
     assert a.data == {'a': 1, 'b': 2}
@@ -416,6 +416,33 @@ def test_add_info_nested_err():
 
     with pytest.raises(KeyError):
         a1.info_strs
+
+def test_put_info():
+    e = Error(a=1, z=-1)
+    e.info += "a={a}"
+    e.put_info("a={a}")
+    e.put_info("b={b}", b=2)
+    e.put_info("b={b}", "c={c}", c=3)
+    e.info += "z={z}"
+
+    assert e.info_strs == [
+            "a=1",
+            "a=1",
+            "b=2",
+            "b=2",
+            "c=3",
+            "z=-1",
+    ]
+
+def test_put_info_nested():
+    e = Error(a=1, b=1, c=1)
+    e.put_info("a={a} b={b} c={c}", a=2, b=2)
+    e.put_info("a={a} b={b} c={c}", a=3)
+
+    assert e.info_strs == [
+            "a=2 b=2 c=1",
+            "a=3 b=2 c=1",
+    ]
 
 def test_str():
     e = Error("Brief")

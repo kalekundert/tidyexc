@@ -99,16 +99,17 @@ class nested_data_view:
             raise AttributeError(key) from None
 
     def flatten(self, layer):
+        if layer < 0:
+            layer += len(self._data_stack)
         return data_view(self._data_stack[:layer+1])
 
 class info_view(iadd_mixin, MutableSequence):
 
-    def __init__(self, info_pairs, data_index):
+    def __init__(self, info_pairs):
         self._info_pairs = info_pairs  # list of (index, template) pairs
-        self._data_index = data_index
 
     def __repr__(self):
-        return f'info_view({self._info_pairs}, {self._data_index})'
+        return f'info_view({self._info_pairs})'
 
     def __eq__(self, other):
         return list(self) == other
@@ -118,9 +119,9 @@ class info_view(iadd_mixin, MutableSequence):
 
     def __setitem__(self, i, value):
         if isinstance(i, slice):
-            self._info_pairs[i] = [(self._data_index, v) for v in value]
+            self._info_pairs[i] = [(-1, v) for v in value]
         else:
-            self._info_pairs[i] = self._data_index, value
+            self._info_pairs[i] = -1, value
 
     def __delitem__(self, i):
         del self._info_pairs[i]
@@ -129,7 +130,7 @@ class info_view(iadd_mixin, MutableSequence):
         return len(self._info_pairs)
 
     def insert(self, i, value):
-        self._info_pairs.insert(i, (self._data_index, value))
+        self._info_pairs.insert(i, (-1, value))
 
     def layers(self):
         return self._info_pairs

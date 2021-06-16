@@ -105,12 +105,13 @@ def test_nested_data_view():
 
     assert v.flatten(0) == {'a': 1, 'b': 2}
     assert v.flatten(1) == {'a': 1, 'b': 3, 'c': 4}
+    assert v.flatten(-1) == {'a': 1, 'b': 3, 'c': 4}
 
 def test_info_view():
     p = [(0, 'a'), (1, 'b')]
-    v = info_view(p, 9)
+    v = info_view(p)
 
-    assert repr(v) == "info_view([(0, 'a'), (1, 'b')], 9)"
+    assert repr(v) == "info_view([(0, 'a'), (1, 'b')])"
     assert v[0] == 'a'
     assert len(v) == 2
     assert v.layers() == [(0, 'a'), (1, 'b')]
@@ -118,16 +119,16 @@ def test_info_view():
 
     v[1] = 'c'
     assert v[1] == 'c'
-    assert p == [(0, 'a'), (9, 'c')]
+    assert p == [(0, 'a'), (-1, 'c')]
 
     del v[0]
-    assert p == [(9, 'c')]
+    assert p == [(-1, 'c')]
 
     v.append('d')
-    assert p == [(9, 'c'), (9, 'd')]
+    assert p == [(-1, 'c'), (-1, 'd')]
 
     v[:] = ['e', 'f']
-    assert p == [(9, 'e'), (9, 'f')]
+    assert p == [(-1, 'e'), (-1, 'f')]
 
 def test_reverse_view():
     l = [1, 2]

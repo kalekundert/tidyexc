@@ -186,6 +186,11 @@ class Error(Exception):
         global _info_stack
         _info_stack = [x for x in _info_stack if x[0] is not cls]
 
+    def put_info(self, *messages, **kwargs):
+        i = len(self._data)
+        self._info += [(i, m) for m in messages]
+        self._data.append(kwargs)
+
 
     def __init__(self, brief="", **kwargs):
         """
@@ -218,24 +223,20 @@ class Error(Exception):
         # it means that `ChainMap` naturally reads in the wrong direction, but 
         # `data_view` handles this internally using `reverse_view`.
 
-        info_stack = [
-                (msgs, kwargs)
-                for cls, msgs, kwargs in _info_stack
-                if isinstance(self, cls)
-        ]
-        info_message_groups, info_kwargs = \
-                zip(*info_stack) if info_stack else ([], [])
-
-        self._info = []
-        for i, msgs in enumerate(info_message_groups):
-            self._info += [(i, m) for m in msgs]
-
         self._brief = brief
+        self._info = []
         self._blame = list_iadd()
         self._hints = list_iadd()
-        self._data = [*info_kwargs, kwargs]
+        self._data = []
 
-        self._info_view = info_view(self._info, len(info_kwargs))
+        for cls, msgs, kws in _info_stack:
+            if isinstance(self, cls):
+                self.put_info(*msgs, **kws)
+
+        self._data.append(kwargs)
+        self._ctor_data = kwargs
+
+        self._info_view = info_view(self._info)
         self._data_view = data_view(self._data)
         self._nested_data_view = nested_data_view(self._data)
 
@@ -483,7 +484,8 @@ class Error(Exception):
 
     @data.setter
     def data(self, values):
-        self._data[-1] = values
+        self._ctor_data.clear()
+        self._ctor_data.update(values)
 
     @property
     def nested_data(self):
