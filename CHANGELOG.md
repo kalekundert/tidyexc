@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.0 (2021-06-16)
+### Feature
+* Implement `put_info()` ([`8607563`](https://github.com/kalekundert/tidyexc/commit/8607563a094d7126e057ff87892c70dd0a1794be))
+
+### Fix
+* Don't use format_exc() during exception handling ([`5cb207f`](https://github.com/kalekundert/tidyexc/commit/5cb207fa7dad28f3e07d2ac4134264d9954ce872))
+
+### Documentation
+* Fix typo ([`ea709ed`](https://github.com/kalekundert/tidyexc/commit/ea709eda7f5cf5b04c333ee50d501b3191ee3d67))
+* Fix badge positioning ([`04fc11e`](https://github.com/kalekundert/tidyexc/commit/04fc11e0a680d09130527e4f5a5c90d7db6ace5a))
+
 ## v0.7.0 (2021-05-02)
 ### Feature
 * Support recursive calls to `add_info()` ([`d653283`](https://github.com/kalekundert/tidyexc/commit/d653283253fdfb1c1045abd5d8b5f3976e557d7d))
