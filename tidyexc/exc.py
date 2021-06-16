@@ -271,8 +271,10 @@ class Error(Exception):
 
             return message
 
-        except:
-            return f"\n\nError occurred while formatting {self.__class__.__name__}:\n\n{format_exc()}\n\n"
+        except Exception as err:
+            # Using format_exc() seems to sometimes trigger stack overflows 
+            # within the python interpreter.
+            return f"\n\nError occurred while formatting {self.__class__.__name__}:\n\n{err.__class__.__name__}: {err}\n\n"
 
     @property
     def brief(self):

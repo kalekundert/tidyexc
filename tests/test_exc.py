@@ -454,7 +454,6 @@ def test_str_err():
     e_str = str(e)
 
     assert "Error occurred while formatting Error:" in e_str
-    assert "Traceback" in e_str
     assert "KeyError: 'x'" in e_str
 
 def test_str_dict():
