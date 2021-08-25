@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.9.0 (2021-08-25)
+### Feature
+* Allow only_raise() to accept multiple exception types ([`e66ed91`](https://github.com/kalekundert/tidyexc/commit/e66ed915ad2d24d013eb1bdd18425373666679fc))
+
 ## v0.8.0 (2021-06-16)
 ### Feature
 * Implement `put_info()` ([`8607563`](https://github.com/kalekundert/tidyexc/commit/8607563a094d7126e057ff87892c70dd0a1794be))
