@@ -5,15 +5,18 @@ from traceback import format_exc
 
 class only_raise:
     """
-    Guarantee that the decorated function can only raise the given type of 
+    Guarantee that the decorated function can only raise the given types of 
     exception.
 
-    Any unhandled exception raised by the decorated function will be caught and 
-    re-raised using an exception of the given type. 
+    At least one type of exceptions must be specified.  Any unhandled exception 
+    raised by the decorated function will be caught and re-raised using an 
+    exception of the first given type.
     """
 
-    def __init__(self, err_cls):
-        self.err_cls = err_cls
+    def __init__(self, *err_cls):
+        if not err_cls:
+            raise TypeError("__init__() missing 1 required positional argument: 'err_cls'")
+        self.err_cls = tuple(err_cls)
 
     def __call__(self, f):
 
@@ -24,7 +27,7 @@ class only_raise:
             except self.err_cls as err:
                 raise err from None
             except Exception as err:
-                raise self.err_cls(str(err)) from err
+                raise self.err_cls[0](str(err)) from err
 
         return wrapper
 

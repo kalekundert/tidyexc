@@ -3,37 +3,56 @@
 import pytest
 from tidyexc import utils, only_raise
 
-class ParentError(Exception):
+class E1(Exception):
     pass
 
-class ChildError(ParentError):
+class E1a(E1):
     pass
 
-class UnrelatedError(Exception):
+class E2(Exception):
+    pass
+
+class E3(Exception):
     pass
 
 @pytest.mark.parametrize(
         'only_err, raise_err, catch_err', [
-            (   ParentError,    ParentError,    ParentError),
-            (   ParentError,     ChildError,     ChildError),
-            (   ParentError, UnrelatedError,    ParentError),
+            ([E1], E1,  E1),
+            ([E1], E1a, E1a),
+            ([E1], E2,  E1),
 
-            (    ChildError,    ParentError,     ChildError),
-            (    ChildError,     ChildError,     ChildError),
-            (    ChildError, UnrelatedError,     ChildError),
+            ([E1a], E1,  E1a),
+            ([E1a], E1a, E1a),
+            ([E1a], E2,  E1a),
 
-            (UnrelatedError,    ParentError, UnrelatedError),
-            (UnrelatedError,     ChildError, UnrelatedError),
-            (UnrelatedError, UnrelatedError, UnrelatedError),
+            ([E2], E1,  E2),
+            ([E2], E1a, E2),
+            ([E2], E2,  E2),
+
+            ([E1, E2], E1,  E1),
+            ([E1, E2], E1a, E1a),
+            ([E1, E2], E2,  E2),
+            ([E1, E2], E3,  E1),
+
+            ([E2, E1], E1,  E1),
+            ([E2, E1], E1a, E1a),
+            ([E2, E1], E2,  E2),
+            ([E2, E1], E3,  E2),
 ])
 def test_only_raise(only_err, raise_err, catch_err):
 
-    @only_raise(only_err)
+    @only_raise(*only_err)
     def f(err):
         raise err
 
     with pytest.raises(catch_err):
         f(raise_err)
+
+def test_only_raise_no_args_err():
+    with pytest.raises(TypeError):
+        @only_raise()
+        def f():
+            pass
 
 def test_list_iadd():
     l = utils.list_iadd()
