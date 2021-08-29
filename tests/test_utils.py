@@ -63,3 +63,14 @@ def test_list_iadd():
 
     assert l == ["a", int, "c", "d"]
 
+@pytest.mark.parametrize(
+        'template, data, expected', [
+            ('', {}, ''),
+            ('a', {}, 'a'),
+            ('{a}', {'a': 1}, '1'),
+            (lambda d: f'{d["a"] + 1}', {'a': 1}, '2'),
+        ],
+)
+def test_eval_template(template, data, expected):
+    assert utils.eval_template(template, data) == expected
+

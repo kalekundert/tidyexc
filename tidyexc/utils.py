@@ -57,4 +57,5 @@ def eval_template(template, data):
     if callable(template):
         return template(data)
     else:
-        return template.format(**data)
+        return template.format_map(data)
+
