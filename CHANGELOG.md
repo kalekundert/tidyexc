@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.10.0 (2022-12-15)
+### Feature
+* Allow template functions to return lists of strings ([`e4d29fd`](https://github.com/kalekundert/tidyexc/commit/e4d29fdb55763b45e19235de1c6265db977b0fce))
+
 ## v0.9.0 (2021-08-25)
 ### Feature
 * Allow only_raise() to accept multiple exception types ([`e66ed91`](https://github.com/kalekundert/tidyexc/commit/e66ed915ad2d24d013eb1bdd18425373666679fc))
