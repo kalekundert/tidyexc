@@ -59,3 +59,16 @@ def eval_template(template, data):
     else:
         return template.format_map(data)
 
+def flatten(nested):
+    """
+    Flatten one level of nesting from the given list of strings.
+    """
+    out = []
+
+    for item in nested:
+        if isinstance(item, str):
+            out.append(item)
+        else:
+            out.extend(item)
+
+    return out

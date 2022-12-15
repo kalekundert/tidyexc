@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from collections import ChainMap
 from traceback import format_exc
 from .views import data_view, nested_data_view, info_view
-from .utils import list_iadd, property_iadd, eval_template
+from .utils import list_iadd, property_iadd, eval_template, flatten
 
 _info_stack = []
 
@@ -338,11 +338,11 @@ class Error(Exception):
           substituted into the message.
 
         - *callable*: When the error message is generated, the callable will be 
-          invoked with `data` as the only argument.  It should return a string, 
-          which will be taken as the message.  A common use-case for callable 
-          template is to specify f-strings via lambda functions.  This is a 
-          succinct way to format parameters using arbitrary expressions (see 
-          example below).
+          invoked with `data` as the only argument.  It should return a string 
+          or a list of strings, which will be taken as the message(s).  A 
+          common use-case for callable template is to specify f-strings via 
+          lambda functions.  This is a succinct way to format parameters using 
+          arbitrary expressions (see example below).
           
         The `info`, `blame`, and `hints` attributes are all list-like objects 
         containing message templates.  Special syntax is added such that you 
@@ -378,10 +378,10 @@ class Error(Exception):
         """
         The `info` messages, with all parameter substitution performed.
         """
-        return [
+        return flatten(
                 eval_template(x, self.nested_data.flatten(i))
                 for i, x in self._info
-        ]
+        )
 
     @property_iadd
     def blame(self):
@@ -416,7 +416,7 @@ class Error(Exception):
         """
         The `blame` messages, with all parameter substitution performed.
         """
-        return [eval_template(x, self.data) for x in self.blame]
+        return flatten(eval_template(x, self.data) for x in self.blame)
 
     @property_iadd
     def hints(self):
@@ -451,7 +451,7 @@ class Error(Exception):
         """
         The `hints` messages, with all parameter substitution performed.
         """
-        return [eval_template(x, self.data) for x in self.hints]
+        return flatten(eval_template(x, self.data) for x in self.hints)
 
     @property
     def data(self):

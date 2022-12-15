@@ -59,6 +59,19 @@ Brief
 • Second line
 """
 
+def test_info_flatten():
+    e = Error()
+    e.info += "First line"
+    e.info += lambda e: ["Second line", "Third line"]
+    e.info += "Fourth line"
+
+    assert e.info_strs == [
+            "First line",
+            "Second line",
+            "Third line",
+            "Fourth line",
+    ]
+
 @pytest.mark.parametrize("s", STRING_TYPES)
 def test_blame(s):
     e = Error("Brief", **s['data'])
@@ -79,6 +92,19 @@ Brief
 ✖ Second line
 """
 
+def test_blame_flatten():
+    e = Error()
+    e.blame += "First line"
+    e.blame += lambda e: ["Second line", "Third line"]
+    e.blame += "Fourth line"
+
+    assert e.blame_strs == [
+            "First line",
+            "Second line",
+            "Third line",
+            "Fourth line",
+    ]
+
 @pytest.mark.parametrize("s", STRING_TYPES)
 def test_hints(s):
     e = Error("Brief", **s['data'])
@@ -98,6 +124,19 @@ Brief
 • {s['expected']}
 • Second line
 """
+
+def test_hints_flatten():
+    e = Error()
+    e.hints += "First line"
+    e.hints += lambda e: ["Second line", "Third line"]
+    e.hints += "Fourth line"
+
+    assert e.hint_strs == [
+            "First line",
+            "Second line",
+            "Third line",
+            "Fourth line",
+    ]
 
 def test_data():
     e = Error(a=1)

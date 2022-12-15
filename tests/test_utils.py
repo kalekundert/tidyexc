@@ -74,3 +74,20 @@ def test_list_iadd():
 def test_eval_template(template, data, expected):
     assert utils.eval_template(template, data) == expected
 
+@pytest.mark.parametrize(
+        'data, expected', [
+            ([],                []),
+            ([[]],              []),
+            (['ab'],            ['ab']),
+            ([['ab']],          ['ab']),
+            (['ab', 'cd'],      ['ab', 'cd']),
+            ([['ab'], 'cd'],    ['ab', 'cd']),
+            (['ab', ['cd']],    ['ab', 'cd']),
+            ([['ab'], ['cd']],  ['ab', 'cd']),
+            ([['ab', 'cd']],    ['ab', 'cd']),
+        ],
+)
+def test_flatten(data, expected):
+    assert utils.flatten(data) == expected
+            
+
