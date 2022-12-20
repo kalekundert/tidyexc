@@ -14,7 +14,7 @@ TidyExc
    :alt: Documentation
    :target: https://tidyexc.readthedocs.io/en/latest/?badge=latest
 
-.. image:: https://img.shields.io/github/workflow/status/kalekundert/tidyexc/Test%20and%20release/master
+.. image:: https://img.shields.io/github/actions/workflow/status/kalekundert/tidyexc/test_and_release.yml?branch=master
    :alt: Test status
    :target: https://github.com/kalekundert/tidyexc/actions
 
